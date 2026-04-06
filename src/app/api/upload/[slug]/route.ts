@@ -25,8 +25,14 @@ export async function POST(
 
   const results: { docType: string; success: boolean }[] = [];
 
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
   for (const [key, value] of formData.entries()) {
     if (value instanceof File && value.size > 0) {
+      if (value.size > MAX_FILE_SIZE) {
+        results.push({ docType: key, success: false });
+        continue;
+      }
       const buffer = Buffer.from(await value.arrayBuffer());
       const success = uploadDocument(slug, key, value.name, buffer);
       results.push({ docType: key, success });
